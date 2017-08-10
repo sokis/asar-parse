@@ -32,7 +32,7 @@ function getFileFromArchive(request, options) {
                 f = f.toString(encoding)
             }
         }
-    } catch (err) {}
+    } catch (err) { }
     return f
 }
 
@@ -102,11 +102,12 @@ function tryPackage(entry, exts) {
     if (!pkg) return false
 
     var filename = tools.join(entry, pkg)
-    return tryFile(filename) ||
-        tryExtensions(filename, exts) ||
-        tryExtensions(tools.join(filename, 'index'), exts)
+    return tryFile(filename) || tryExtensions(filename, exts) ||  tryExtensions(tools.join(filename, 'index'), exts)
 }
 
+function maybeCallback(cb) {
+    return typeof cb === 'function' ? cb : () => { };
+}
 
 const hooks = {
     fs: {
@@ -120,7 +121,16 @@ const hooks = {
                 return f
             }
         },
-
+        realpathSync: function (request, options) {
+            var idx = request.indexOf(".asar");
+            if (idx == -1) {
+                return original.fs.realpathSync(request, options);
+            }
+            var f = getFileFromArchive(request, options);
+            if (f) {
+                return f;
+            }
+        },
         readFile: (request, options, callback_) => {
             const callback = (err, data) => {
                 const cb = maybeCallback(callback_)
