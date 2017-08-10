@@ -1,0 +1,12 @@
+# Logs
+logs
+*.log
+npm-debug.log*
+
+coverage
+.nyc_output
+node_modules
+.npm
+test/*.asar
+example/*.asar
+dist
